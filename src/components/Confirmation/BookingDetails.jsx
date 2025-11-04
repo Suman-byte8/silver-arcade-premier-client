@@ -8,14 +8,14 @@ const AccommodationDetails = ({ booking }) => (
       <FaCalendarAlt className="text-gray-500" />
       <div>
         <p className="text-sm text-gray-600">Check-in</p>
-        <p className="font-medium">{formatDate(booking.arrivalDate)} at {formatTime(booking.checkInTime)}</p>
+        <p className="font-medium">{formatDate(booking.arrivalDate)}</p>
       </div>
     </div>
     <div className="flex items-center gap-3 mb-2">
       <FaCalendarAlt className="text-gray-500" />
       <div>
         <p className="text-sm text-gray-600">Check-out</p>
-        <p className="font-medium">{formatDate(booking.departureDate)} at {formatTime(booking.checkOutTime)}</p>
+        <p className="font-medium">{formatDate(booking.departureDate)}</p>
       </div>
     </div>
     <div className="flex items-center gap-3 mb-2">

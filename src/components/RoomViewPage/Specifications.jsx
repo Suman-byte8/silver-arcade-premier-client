@@ -6,7 +6,7 @@ const Specifications = () => {
     { feature: 'Bed Type', details: 'King or Twin Beds' },
     { feature: 'Size', details: '450 sq ft' },
     { feature: 'View', details: 'City or Garden View' },
-    { feature: 'Check-in/Check-out', details: '3:00 PM / 12:00 PM' },
+    { feature: 'Check-in/Check-out', details: '11:00 AM / 9:00 AM' },
   ];
 
   return (

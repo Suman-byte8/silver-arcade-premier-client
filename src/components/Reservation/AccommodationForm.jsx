@@ -189,7 +189,11 @@ const {getToken} = useContext(UserContext)
           }}
           onDateSelect={(date) => handleDateSelect(date, "arrival")}
           minDate={today}
-          formatDate={(date) => formatDateWithTime(date, formatTime(CHECK_IN_TIME))}
+          formatDate={(date) => date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
         />
         <DatePicker
           label="DEPARTURE"
@@ -201,8 +205,19 @@ const {getToken} = useContext(UserContext)
           }}
           onDateSelect={(date) => handleDateSelect(date, "departure")}
           minDate={new Date(arrivalDate.getTime() + 24 * 60 * 60 * 1000)}
-          formatDate={(date) => formatDateWithTime(date, formatTime(CHECK_OUT_TIME))}
+          formatDate={(date) => date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
         />
+      </div>
+
+      {/* Time Information */}
+      <div className="mb-6">
+        <p className="text-sm text-gray-500">
+          Check-in time is 11:00 AM, and check-out time is 9:00 AM.
+        </p>
       </div>
 
       <NightsDisplay nights={calculateNights()} />
