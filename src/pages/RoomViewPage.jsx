@@ -32,33 +32,7 @@ const RoomViewPage = () => {
     fetchRoom();
   }, [id, getToken]);
 
-  // Socket.io event listeners for real-time updates
-  useEffect(() => {
-    if (!id) return;
 
-    socket.emit('joinRoomBookingRoom', id);
-
-    const handleRoomStatusChange = (data) => {
-      if (data.roomId === id) {
-        setRoom(prev => ({
-          ...prev,
-          roomStatus: data.status,
-          currentBooking: data.bookingId || null
-        }));
-      }
-    };
-
-    socket.on('roomBookingStatusChanged', handleRoomStatusChange);
-    socket.on('roomBooked', handleRoomStatusChange);
-    socket.on('roomBookingCancelled', handleRoomStatusChange);
-
-    return () => {
-      socket.emit('leaveRoomBookingRoom', id);
-      socket.off('roomBookingStatusChanged', handleRoomStatusChange);
-      socket.off('roomBooked', handleRoomStatusChange);
-      socket.off('roomBookingCancelled', handleRoomStatusChange);
-    };
-  }, [id]);
 
   const handleBookNow = () => {
     navigate('/reservation', {
@@ -94,7 +68,7 @@ const RoomViewPage = () => {
               roomStatus={room.roomStatus}
             />
           </div>
-          <div className="lg:sticky lg:top-24 h-fit">
+          <div className="lg:top-24 h-fit">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-2xl font-semibold mb-4">Room Details</h3>
               <p className="text-gray-600 mb-6">
@@ -107,7 +81,7 @@ const RoomViewPage = () => {
                 className={`w-full py-3 px-4 rounded-md text-lg font-medium ${
                   room.roomStatus === 'booked'
                     ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-primary text-white hover:bg-primary-dark transition-colors'
+                    : 'bg-primary text-white bg-blue-600 hover:bg-primary-dark transition-colors'
                 }`}
               >
                 {room.roomStatus === 'booked' ? 'Room Not Available' : 'Book Now'}

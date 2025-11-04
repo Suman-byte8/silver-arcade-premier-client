@@ -1,29 +1,29 @@
-import { io } from 'socket.io-client';
+import io from 'socket.io-client';
 
-// Create socket instance with backend URL
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
-// Initialize socket with options
-export const socket = io(BACKEND_URL, {
-    autoConnect: true,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    transports: ['websocket', 'polling']
+console.log('Attempting to connect to socket server:', SOCKET_URL);
+
+const socket = io(SOCKET_URL, {
+  transports: ['websocket', 'polling'],
+  timeout: 20000,
+  forceNew: true,
+  autoConnect: true,
+  withCredentials: true
 });
 
-// Socket event listeners for connection status
+// Add connection debugging
 socket.on('connect', () => {
-    console.log('Socket connected successfully');
+  console.log('✅ Socket connected successfully!');
+  console.log('Socket ID:', socket.id);
 });
 
 socket.on('connect_error', (error) => {
-    console.error('Socket connection error:', error);
+  console.error('❌ Socket connection error:', error);
 });
 
 socket.on('disconnect', (reason) => {
-    console.log('Socket disconnected:', reason);
+  console.log('Socket disconnected:', reason);
 });
 
-// Export socket instance
-export default socket;
+export { socket };

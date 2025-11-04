@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { fetchReservationById } from "../services/reservationApi";
 import { getBookingType } from "../utils/bookingUtils";
 import { slugToLabel } from "../utils/typeMapper";
-import { downloadAcknowledgementPDF } from "../utils/pdf/acknowledgePDF";  
+import { downloadAcknowledgementPDF, previewAcknowledgementPDF } from "../utils/pdf/acknowledgePDF";  
 import { UserContext } from "../context/UserContext";
 
 import LoadingState from "../components/Confirmation/LoadingState";
@@ -76,6 +76,10 @@ const BookingConfirmation = () => {
     downloadAcknowledgementPDF(bookingData, typeSlug);
   };
 
+  const handlePreviewPDF = () => {
+    previewAcknowledgementPDF(bookingData, typeSlug);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6 font-helvetica-neue">
       <div className="bg-white shadow-2xl rounded-2xl max-w-2xl w-full p-8">
@@ -92,9 +96,22 @@ const BookingConfirmation = () => {
           </div>
         )}
 
-        <ActionButtons bookingData={bookingData} bookingType={typeSlug} handleDownloadPDF={handleDownloadPDF} />
-
-       
+        <div className="flex justify-center gap-4 mt-6">
+          <button
+            onClick={handlePreviewPDF}
+            className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50"
+          >
+            <FaFilePdf />
+            Preview PDF
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          >
+            <FaFilePdf />
+            Download PDF
+          </button>
+        </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           This acknowledgement confirms that we received your request. A final confirmation PDF will be sent to your email once our team approves your booking.
@@ -102,7 +119,7 @@ const BookingConfirmation = () => {
 
         <Link
           to="/"
-          className="text-blue-600 hover:underline text-center text-sm flex items-center gap-2 mt-6 justify-center"
+          className="text-blue-600 hover:underline text-sm flex items-center gap-2 mt-6 justify-center"
         >
           <FaArrowLeft />
           Back to Home

@@ -3,8 +3,34 @@ import { formatDate } from "../bookingUtils";
 
 const logoPath = "/logo.png";
 
+const formatRoomTypes = (roomTypes) => {
+  if (!roomTypes || roomTypes.length === 0) return "No rooms selected";
+  return roomTypes.map(room => `${room.count} ${room.type} ${room.count > 1 ? 'Rooms' : 'Room'}`).join(', ');
+};
+
+const formatGuests = (totalAdults, totalChildren) => {
+  let guestText = `${totalAdults} ${totalAdults > 1 ? 'Adults' : 'Adult'}`;
+  if (totalChildren > 0) {
+    guestText += `, ${totalChildren} ${totalChildren > 1 ? 'Children' : 'Child'}`;
+  }
+  return guestText;
+};
+
+export const previewAcknowledgementPDF = (bookingData, bookingType) => {
+  const doc = new jsPDF("p", "mm", "a4");
+  generatePDF(doc, bookingData, bookingType);
+  const pdfDataUri = doc.output('dataurlstring');
+  window.open(pdfDataUri);
+};
+
 export const downloadAcknowledgementPDF = async (bookingData, bookingType) => {
   const doc = new jsPDF("p", "mm", "a4");
+  generatePDF(doc, bookingData, bookingType);
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  doc.save(`SAP_${bookingType.toUpperCase()}_ACKNOWLEDGEMENT_${dateStamp}.pdf`);
+};
+
+const generatePDF = (doc, bookingData, bookingType) => {
   const pageWidth = 210;
   let y = 20;
 
@@ -71,8 +97,28 @@ export const downloadAcknowledgementPDF = async (bookingData, bookingType) => {
   if (bookingType === "accommodation") {
     summary.push(["Check-in", formatDate(bookingData.arrivalDate)]);
     summary.push(["Check-out", formatDate(bookingData.departureDate)]);
-    summary.push(["Rooms", (bookingData.rooms?.length || 0).toString()]);
+    
+    // Add room types section with better formatting
+    if (bookingData.selectedRoomTypes && bookingData.selectedRoomTypes.length > 0) {
+      summary.push(["Room Details", ""]);  // Empty value for better formatting
+      bookingData.selectedRoomTypes.forEach((room, index) => {
+        summary.push([
+          `${index === 0 ? "" : ""}`, 
+          `• ${room.type}: ${room.count} ${room.count > 1 ? 'Rooms' : 'Room'}`
+        ]);
+      });
+    } else {
+      summary.push(["Room Details", "No rooms selected"]);
+    }
+
+    summary.push(["Number of Guests", formatGuests(bookingData.totalAdults, bookingData.totalChildren)]);
+    summary.push(["Number of Nights", bookingData.nights?.toString() || "N/A"]);
+    if (bookingData.specialRequests) {
+      summary.push(["Special Requests", bookingData.specialRequests]);
+    }
   }
+  
+  // Rest of the bookingTypes remain unchanged
   if (bookingType === "restaurant") {
     summary.push(["Reservation Date", formatDate(bookingData.date)]);
     summary.push(["Time Slot", bookingData.timeSlot]);
@@ -86,12 +132,26 @@ export const downloadAcknowledgementPDF = async (bookingData, bookingType) => {
     summary.push(["Rooms", bookingData.numberOfRooms?.toString()]);
   }
 
+  // Draw summary with better formatting for room types
   summary.forEach(([label, value]) => {
-    doc.setFont("helvetica", "bold");
-    doc.text(`${label}:`, 20, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${value}`, 70, y);
-    y += 8;
+    if (label === "Room Details" && value === "") {
+      // Special handling for room types header
+      doc.setFont("helvetica", "bold");
+      doc.text("Room Details:", 20, y);
+      y += 8;
+    } else if (label === "") {
+      // This is a room type detail line
+      doc.setFont("helvetica", "normal");
+      doc.text(value, 25, y);
+      y += 6;
+    } else {
+      // Normal line
+      doc.setFont("helvetica", "bold");
+      doc.text(`${label}:`, 20, y);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${value}`, 70, y);
+      y += 8;
+    }
   });
 
   y += 15;
@@ -108,7 +168,4 @@ export const downloadAcknowledgementPDF = async (bookingData, bookingType) => {
     { align: "center" }
   );
   doc.text("Phone: +7719381841 | Email: mdshabib1993@gmail.com", pageWidth / 2, 285, { align: "center" });
-
-  const dateStamp = new Date().toISOString().slice(0, 10);
-  doc.save(`SAP_${bookingType.toUpperCase()}_ACKNOWLEDGEMENT_${dateStamp}.pdf`);
 };

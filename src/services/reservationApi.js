@@ -56,7 +56,7 @@ export const createReservation = async (type, formData, token) => {
 export const fetchReservationById = async (type, id, token) => {
     const slug = (type || "").toLowerCase();
     const response = await axios.get(
-      `${API_URL}/reservations/${slug}/${id}`,   // ✅ note reservations not users
+      `${API_URL}/reservations/${slug}/${id}`,
       {
         headers: { ...(token && { Authorization: `Bearer ${token}` }) },
       }
@@ -65,39 +65,3 @@ export const fetchReservationById = async (type, id, token) => {
       return { data: response.data.data, error: null };
     return { data:null, error: response.data.message };
   };
-
-/**
- * Create Room Booking
- */
-export const createRoomBooking = async (roomData, token) => {
-  return requestWithRetry(async () => {
-    const res = await axios.post(`${API_URL}/reservations/room`, roomData, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.data.success) {
-      toast.success("Room booked successfully!");
-      return { data: res.data.data, error: null };
-    }
-    throw new Error(res.data.message);
-  }).catch(err => ({ data: null, error: err.response?.data?.message || err.message }));
-};
-
-/**
- * Get Room Bookings
- */
-export const getRoomBookings = async (roomId, token) => {
-  return requestWithRetry(async () => {
-    const res = await axios.get(`${API_URL}/reservations/room/${roomId}/bookings`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.data.success) {
-      return { data: res.data.data, error: null };
-    }
-    throw new Error(res.data.message);
-  }).catch(err => ({ data: null, error: err.response?.data?.message || err.message }));
-};
