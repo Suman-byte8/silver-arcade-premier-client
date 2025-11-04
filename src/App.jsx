@@ -28,11 +28,13 @@ import MeetingPage from "./pages/SemiNavlinksPages/MeetingPage";
 import WeddingPage from "./pages/SemiNavlinksPages/WeddingPage";
 import SleepBoutique from "./pages/SemiNavlinksPages/SleepBoutique";
 import ProtectedRoute from "./components/ProtectedRoute";
+import FloatingButtons from "./components/FloatingButtons";
 
 const AppContent = () => {
   return (
     <div className="font-helvetica-neue">
       <Navbar />
+      <FloatingButtons />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<ContactPage />} />
