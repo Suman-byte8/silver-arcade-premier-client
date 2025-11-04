@@ -55,7 +55,7 @@ const TermsOfService = () => {
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-gray-900">4. Check-In & Check-Out</h3>
               <p>
-                Standard check-in time is 12:00 PM and check-out time is 11:00 AM, unless otherwise agreed. 
+                Standard check-in time is 11:00 AM and check-out time is 9:00 AM, unless otherwise agreed.
                 Early check-in or late check-out may be subject to additional charges.
               </p>
             </div>
