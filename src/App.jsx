@@ -23,8 +23,6 @@ import PrivacyPolicyPage from "./pages/Privacy Policy/PrivacyPolicyPage";
 import TermsOfService from "./pages/Privacy Policy/TermsOfService";
 import RoomViewPage from "./pages/RoomViewPage";
 import PageNotFound from "./pages/PageNotFound";
-import LoginPage from "./pages/Auth/LoginPage";
-import SignupPage from "./pages/Auth/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
 import MeetingPage from "./pages/SemiNavlinksPages/MeetingPage";
 import WeddingPage from "./pages/SemiNavlinksPages/WeddingPage";
@@ -32,13 +30,9 @@ import SleepBoutique from "./pages/SemiNavlinksPages/SleepBoutique";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppContent = () => {
-  const location = useLocation();
-  const isAuthPage =
-    location.pathname === "/log-in" || location.pathname === "/sign-up";
-
   return (
     <div className="font-helvetica-neue">
-      {!isAuthPage && <Navbar />}
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<ContactPage />} />
@@ -48,16 +42,9 @@ const AppContent = () => {
         <Route path="/reservation" element={<ReservationPage />} />
         <Route path="/gallery" element={<GalleryPage />} />
         <Route path="/heart-malda" element={<OurHeartMalda />} />
-        <Route
-          path="/membership-area"
-          element={
-            <ProtectedRoute>
-              <Membership />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/membership-area" element={<Membership />} />
 
-        {/* 🔐 PROTECTED ROUTES */}
+        {/* Protected Routes */}
         <Route
           path="/booking-confirmation"
           element={
@@ -78,18 +65,14 @@ const AppContent = () => {
         {/* Public Routes */}
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-
         <Route path="/our-rooms" element={<OurRooms />} />
         <Route path="/our-rooms/room-tour/:id" element={<RoomViewPage />} />
-        <Route path="/log-in" element={<LoginPage />} />
-        <Route path="/sign-up" element={<SignupPage />} />
-        <Route path="*" element={<PageNotFound />} />
-
         <Route path="/banquet-page" element={<MeetingPage />} />
         <Route path="/wedding-page" element={<WeddingPage />} />
         <Route path="/sleep-boutique" element={<SleepBoutique />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
-      {!isAuthPage && <Footer />}
+      <Footer />
     </div>
   );
 };
