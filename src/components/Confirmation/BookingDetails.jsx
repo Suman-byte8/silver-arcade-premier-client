@@ -23,7 +23,14 @@ const AccommodationDetails = ({ booking }) => (
       <div>
         <p className="text-sm text-gray-600">Rooms and Guests</p>
         <p className="font-medium">
-          {booking.rooms.length} Room(s), {booking.totalAdults} Adult(s)
+          {booking.selectedRoomTypes?.map((room, index) => (
+            <span key={index}>
+              {room.count} {room.type}{room.count > 1 ? ' Rooms' : ' Room'}
+              {index < booking.selectedRoomTypes.length - 1 ? ', ' : ''}
+            </span>
+          ))}
+          {booking.selectedRoomTypes?.length > 0 && ' - '}
+          {booking.totalAdults} Adult(s)
           {booking.totalChildren > 0 && `, ${booking.totalChildren} Children`}
         </p>
       </div>
@@ -35,6 +42,15 @@ const AccommodationDetails = ({ booking }) => (
         <p className="font-medium">{booking.nights} Night(s)</p>
       </div>
     </div>
+    {booking.specialRequests && (
+      <div className="flex items-center gap-3">
+        <FaInfoCircle className="text-gray-500" />
+        <div>
+          <p className="text-sm text-gray-600">Special Requests</p>
+          <p className="font-medium">{booking.specialRequests}</p>
+        </div>
+      </div>
+    )}
   </div>
 );
 

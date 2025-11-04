@@ -50,7 +50,12 @@ const BookingConfirmation = () => {
         setError(result.error);
         toast.error(result.error);
       } else {
-        setBooking(result.data);
+        // Ensure we merge initialData for any fields that might not be in the API response
+        setBooking({
+          ...initialData,
+          ...result.data,
+          selectedRoomTypes: result.data.selectedRoomTypes || initialData.selectedRoomTypes
+        });
       }
 
       setLoading(false);
@@ -59,6 +64,7 @@ const BookingConfirmation = () => {
     getBooking();
   }, [bookingId, initialData]);
 
+  // Use booking as the primary source of data, fall back to initialData
   const bookingData = booking || initialData;
   const typeSlug = getBookingType(bookingData);
   const typeLabel = slugToLabel(typeSlug);

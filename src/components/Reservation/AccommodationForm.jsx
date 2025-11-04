@@ -1,4 +1,5 @@
-import React, { useState,useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { toast } from 'react-hot-toast';
 import FullLogo from "../FullLogo";
 import BookingButton from "../Reservation/BookingButton";
@@ -8,7 +9,7 @@ import { RoomSelection } from "../Reservation/Accommodation/components/RoomSelec
 import { GuestInformation } from "../Reservation/Accommodation/components/GuestInformation";
 import { createReservation } from "../../services/reservationApi";
 import { formatDate } from "../../utils/bookingUtils";
-import {UserContext} from "../../context/UserContext";
+import { UserContext } from "../../context/UserContext";
 import LoginModal from "../LoginModal";
 
 // Constants for check-in and check-out times
@@ -16,14 +17,16 @@ const CHECK_IN_TIME = "11:00";
 const CHECK_OUT_TIME = "09:00";
 
 export default function AccommodationForm({ onSubmit }) {
+  const location = useLocation();
+  const initialRoomData = location.state?.roomData;
+
   // State declarations
   const [showArrivalCalendar, setShowArrivalCalendar] = useState(false);
   const [showDepartureCalendar, setShowDepartureCalendar] = useState(false);
-  const [showRoomSelection, setShowRoomSelection] = useState(false);
+  // const [showRoomSelection, setShowRoomSelection] = useState(false); // Commented out old room selection
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-const {getToken, isAuthenticated} = useContext(UserContext)
-
+  const { getToken, isAuthenticated } = useContext(UserContext);
 
   const today = new Date();
   const tomorrow = new Date(today);
@@ -31,12 +34,34 @@ const {getToken, isAuthenticated} = useContext(UserContext)
 
   const [arrivalDate, setArrivalDate] = useState(today);
   const [departureDate, setDepartureDate] = useState(tomorrow);
-  const [rooms, setRooms] = useState([{ adults: 1, children: 0 }]);
+  // const [rooms, setRooms] = useState([{ adults: 1, children: 0 }]); // Commented out old rooms state
+  const [selectedRoomTypes, setSelectedRoomTypes] = useState(
+    initialRoomData ? [{ type: initialRoomData.roomType, count: 1 }] : []
+  );
+  const [totalAdults, setTotalAdults] = useState(initialRoomData?.adults || 1);
+  const [totalChildren, setTotalChildren] = useState(initialRoomData?.children || 0);
   const [guestName, setGuestName] = useState("");
   const [guestPhoneNumber, setGuestPhoneNumber] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [specialRequests, setSpecialRequests] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update handlers for total guests
+  const handleTotalAdultsChange = (value) => {
+    setTotalAdults(Math.max(1, value));
+  };
+
+  const handleTotalChildrenChange = (value) => {
+    setTotalChildren(Math.max(0, value));
+  };
+
+  useEffect(() => {
+    if (initialRoomData) {
+      setArrivalDate(new Date(initialRoomData.checkIn || today));
+      setDepartureDate(new Date(initialRoomData.checkOut || tomorrow));
+      // setRooms([{ adults: initialRoomData.adults || 1, children: initialRoomData.children || 0 }]);
+    }
+  }, [initialRoomData]);
 
   const handleDateSelect = (date, type) => {
     if (type === "arrival") {
@@ -62,6 +87,8 @@ const {getToken, isAuthenticated} = useContext(UserContext)
     }
   };
 
+  // Comment out old room handlers
+  /*
   const addRoom = () => {
     setRooms([...rooms, { adults: 1, children: 0 }]);
   };
@@ -79,14 +106,27 @@ const {getToken, isAuthenticated} = useContext(UserContext)
     updatedRooms[roomIndex][type] = newValue;
     setRooms(updatedRooms);
   };
+  */
 
-  const getTotalAdults = () =>
-    rooms.reduce((sum, room) => sum + room.adults, 0);
-  const getTotalChildren = () =>
-    rooms.reduce((sum, room) => sum + room.children, 0);
+  // New room type handlers
+  const handleRoomTypeChange = (index, type, count) => {
+    const newRoomTypes = [...selectedRoomTypes];
+    if (index >= newRoomTypes.length) {
+      newRoomTypes.push({ type, count });
+    } else {
+      newRoomTypes[index] = { type, count };
+    }
+    setSelectedRoomTypes(newRoomTypes.filter(room => room.count > 0));
+  };
+
+  const addRoomType = () => {
+    setSelectedRoomTypes([...selectedRoomTypes, { type: '', count: 1 }]);
+  };
 
   const resetForm = () => {
-    setRooms([{ adults: 1, children: 0 }]);
+    setSelectedRoomTypes([]);
+    setTotalAdults(1);
+    setTotalChildren(0);
     setGuestName('');
     setGuestPhoneNumber('');
     setGuestEmail('');
@@ -119,57 +159,82 @@ const {getToken, isAuthenticated} = useContext(UserContext)
   };
 
   const handleSubmit = async () => {
-    // Check if user is authenticated
     if (!isAuthenticated) {
       setIsLoginModalOpen(true);
       return;
     }
-
+  
     try {
       setIsLoading(true);
-
+  
       // Form validation
       if (!guestName || !guestPhoneNumber || !guestEmail) {
         toast.error('Please fill in all guest information');
         setIsLoading(false);
         return;
       }
-
+  
+      if (selectedRoomTypes.length === 0 || selectedRoomTypes.some(room => !room.type)) {
+        toast.error('Please select room types for all rooms');
+        setIsLoading(false);
+        return;
+      }
+  
+      if (totalAdults < 1) {
+        toast.error('At least one adult is required');
+        setIsLoading(false);
+        return;
+      }
+  
+      // Calculate nights
+      const nights = calculateNights();
+      if (nights < 1) {
+        toast.error('Check-out date must be after check-in date');
+        setIsLoading(false);
+        return;
+      }
+  
       const formData = {
         typeOfReservation: 'accommodation',
         arrivalDate: arrivalDate.toISOString(),
         departureDate: departureDate.toISOString(),
         checkInTime: CHECK_IN_TIME,
         checkOutTime: CHECK_OUT_TIME,
-        nights: calculateNights(),
-        rooms: rooms,
-        totalAdults: getTotalAdults(),
-        totalChildren: getTotalChildren(),
-        specialRequests: specialRequests,
+        nights,
+        selectedRoomTypes: selectedRoomTypes.map(room => ({
+          type: room.type,
+          count: Math.max(1, room.count)
+        })),
+        totalAdults: Math.max(1, totalAdults),
+        totalChildren: Math.max(0, totalChildren),
+        specialRequests: specialRequests || '',
         guestInfo: {
-          name: guestName,
-          phoneNumber: guestPhoneNumber,
-          email: guestEmail
+          name: guestName.trim(),
+          phoneNumber: guestPhoneNumber.trim(),
+          email: guestEmail.trim().toLowerCase()
         }
       };
-
+  
+      console.log('Submitting accommodation booking:', formData);
+  
       const token = getToken();
       const { data, error } = await createReservation("accommodation", formData, token);
-
+  
       if (error) {
+        console.error('Booking error:', error);
         toast.error(error);
         setIsLoading(false);
         return;
       }
-
+  
       toast.success('Booking successful!');
-
+  
       // Call onSubmit with the booking data for navigation
       onSubmit({
         ...data,
         bookingId: data._id
       });
-
+  
       // Reset form
       resetForm();
     } catch (error) {
@@ -179,7 +244,6 @@ const {getToken, isAuthenticated} = useContext(UserContext)
       setIsLoading(false);
     }
   };
-
 
   return (
     <div className="flex-1 p-8">
@@ -230,16 +294,102 @@ const {getToken, isAuthenticated} = useContext(UserContext)
 
       <NightsDisplay nights={calculateNights()} />
 
-      <RoomSelection
-        rooms={rooms}
-        showRoomSelection={showRoomSelection}
-        onToggleRoomSelection={() => setShowRoomSelection(!showRoomSelection)}
-        onUpdateCount={updateCount}
-        onAddRoom={addRoom}
-        onRemoveRoom={removeRoom}
-        getTotalAdults={getTotalAdults}
-        getTotalChildren={getTotalChildren}
-      />
+      {/* Room Type Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          ROOM TYPES
+        </label>
+        <div className="space-y-4">
+          {selectedRoomTypes.map((room, index) => (
+            <div key={index} className="flex items-center gap-4">
+              <select
+                value={room.type}
+                onChange={(e) => handleRoomTypeChange(index, e.target.value, room.count)}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+              >
+                <option value="">Select Room Type</option>
+                <option value="Standard">Standard Room</option>
+                <option value="Deluxe">Deluxe Room</option>
+                <option value="Suite">Suite</option>
+                <option value="Family">Family Room</option>
+              </select>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleRoomTypeChange(index, room.type, room.count - 1)}
+                  className="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  -
+                </button>
+                <span className="w-8 text-center">{room.count}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRoomTypeChange(index, room.type, room.count + 1)}
+                  className="p-1 text-gray-500 hover:text-gray-700"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addRoomType}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          >
+            + Add Another Room Type
+          </button>
+        </div>
+      </div>
+
+      {/* Total Guests Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          TOTAL GUESTS
+        </label>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label className="text-xs text-gray-600">Adults</label>
+            <div className="flex items-center gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => handleTotalAdultsChange(totalAdults - 1)}
+                className="p-1 text-gray-500 hover:text-gray-700"
+              >
+                -
+              </button>
+              <span className="w-8 text-center">{totalAdults}</span>
+              <button
+                type="button"
+                onClick={() => handleTotalAdultsChange(totalAdults + 1)}
+                className="p-1 text-gray-500 hover:text-gray-700"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="flex-1">
+            <label className="text-xs text-gray-600">Children</label>
+            <div className="flex items-center gap-2 mt-1">
+              <button
+                type="button"
+                onClick={() => handleTotalChildrenChange(totalChildren - 1)}
+                className="p-1 text-gray-500 hover:text-gray-700"
+              >
+                -
+              </button>
+              <span className="w-8 text-center">{totalChildren}</span>
+              <button
+                type="button"
+                onClick={() => handleTotalChildrenChange(totalChildren + 1)}
+                className="p-1 text-gray-500 hover:text-gray-700"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Special Requests Section */}
       <div className="mb-6">

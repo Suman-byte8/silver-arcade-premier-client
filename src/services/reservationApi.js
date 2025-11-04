@@ -28,6 +28,7 @@ const requestWithRetry = async (fn, retries = 3, notifyOnError = true) => {
 export const createReservation = async (type, formData, token) => {
   const slug = normalizeType(type);
   return requestWithRetry(async () => {
+    console.log('Creating reservation with data:', { type: slug, formData });
     const res = await axios.post(`${API_URL}/reservations/${slug}`, formData, {
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +40,14 @@ export const createReservation = async (type, formData, token) => {
       return { data: res.data.data, error: null };
     }
     throw new Error(res.data.message);
-  }).catch(err => ({ data:null, error:err.response?.data?.message || err.message }));
+  }).catch(err => {
+    console.error('Reservation creation failed:', {
+      type: slug,
+      error: err.response?.data || err,
+      formData
+    });
+    return { data: null, error: err.response?.data?.message || err.message };
+  });
 };
 
 /**
@@ -57,3 +65,39 @@ export const fetchReservationById = async (type, id, token) => {
       return { data: response.data.data, error: null };
     return { data:null, error: response.data.message };
   };
+
+/**
+ * Create Room Booking
+ */
+export const createRoomBooking = async (roomData, token) => {
+  return requestWithRetry(async () => {
+    const res = await axios.post(`${API_URL}/reservations/room`, roomData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.data.success) {
+      toast.success("Room booked successfully!");
+      return { data: res.data.data, error: null };
+    }
+    throw new Error(res.data.message);
+  }).catch(err => ({ data: null, error: err.response?.data?.message || err.message }));
+};
+
+/**
+ * Get Room Bookings
+ */
+export const getRoomBookings = async (roomId, token) => {
+  return requestWithRetry(async () => {
+    const res = await axios.get(`${API_URL}/reservations/room/${roomId}/bookings`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.data.success) {
+      return { data: res.data.data, error: null };
+    }
+    throw new Error(res.data.message);
+  }).catch(err => ({ data: null, error: err.response?.data?.message || err.message }));
+};
