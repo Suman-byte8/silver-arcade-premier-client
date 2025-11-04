@@ -24,20 +24,14 @@ const UserProvider = ({ children }) => {
       fetchUserDetails().then(() => {
         setIsAuthenticated(true);
       }).catch(() => {
-        // If fetch fails (e.g., token expired), clear token and redirect
+        // If fetch fails (e.g., token expired), clear token and set unauthenticated
         localStorage.removeItem('token');
         setIsAuthenticated(false);
         setUser(null);
-        if (location.pathname !== '/log-in' && location.pathname !== '/sign-up') {
-          navigate('/log-in', { replace: true });
-        }
       });
     } else {
       setIsAuthenticated(false);
       setUser(null);
-      if (location.pathname !== '/log-in' && location.pathname !== '/sign-up') {
-        navigate('/log-in', { replace: true });
-      }
     }
     setLoading(false);
   }, [location.pathname]);
@@ -91,7 +85,7 @@ const UserProvider = ({ children }) => {
     setIsAuthenticated(false);
     localStorage.removeItem('token');
     localStorage.removeItem('rememberedEmail'); // Clear remembered email on logout
-    navigate('/log-in', { replace: true });
+    navigate('/', { replace: true });
   };
 
   if (loading) {

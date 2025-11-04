@@ -9,6 +9,7 @@ import { GuestInformation } from "../Reservation/Accommodation/components/GuestI
 import { createReservation } from "../../services/reservationApi";
 import { formatDate } from "../../utils/bookingUtils";
 import {UserContext} from "../../context/UserContext";
+import LoginModal from "../LoginModal";
 
 // Constants for check-in and check-out times
 const CHECK_IN_TIME = "11:00";
@@ -19,8 +20,9 @@ export default function AccommodationForm({ onSubmit }) {
   const [showArrivalCalendar, setShowArrivalCalendar] = useState(false);
   const [showDepartureCalendar, setShowDepartureCalendar] = useState(false);
   const [showRoomSelection, setShowRoomSelection] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-const {getToken} = useContext(UserContext)
+const {getToken, isAuthenticated} = useContext(UserContext)
 
 
   const today = new Date();
@@ -117,6 +119,12 @@ const {getToken} = useContext(UserContext)
   };
 
   const handleSubmit = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -272,6 +280,12 @@ const {getToken} = useContext(UserContext)
       />
 
       <BookingButton text={"Book"} onSubmit={handleSubmit} isLoading={isLoading} />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+      />
     </div>
   );
 }

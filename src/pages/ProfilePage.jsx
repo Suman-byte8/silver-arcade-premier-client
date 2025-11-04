@@ -2,9 +2,10 @@ import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
 import { updateUserProfile } from "../services/authApi";
 import Toast from "../components/Toast";
+import { FaSignOutAlt } from "react-icons/fa";
 
 const ProfilePage = () => {
-  const { user, getToken, fetchUserDetails } = useContext(UserContext);
+  const { user, getToken, fetchUserDetails, logout } = useContext(UserContext);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -358,7 +359,7 @@ const ProfilePage = () => {
         </form>
 
         {/* Footer */}
-        <div className="px-8 py-6 border-t border-gray-200 flex flex-col  justify-center gap-4 items-center">
+        <div className="px-8 py-6 border-t border-gray-200 flex flex-col justify-center gap-4 items-center">
           {!isEditing ? (
             <div className="text-sm text-gray-500">
               Click "Edit Profile" to make changes
@@ -384,6 +385,15 @@ const ProfilePage = () => {
               </button>
             ) : null}
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={logout}
+            className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl transition duration-200 shadow-md w-full"
+          >
+            <FaSignOutAlt />
+            Logout
+          </button>
         </div>
       </div>
       {toast && (
