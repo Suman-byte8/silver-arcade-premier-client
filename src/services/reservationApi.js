@@ -28,6 +28,7 @@ const requestWithRetry = async (fn, retries = 3, notifyOnError = true) => {
 export const createReservation = async (type, formData, token) => {
   const slug = normalizeType(type);
   return requestWithRetry(async () => {
+    console.log('Creating reservation with data:', { type: slug, formData });
     const res = await axios.post(`${API_URL}/reservations/${slug}`, formData, {
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +40,14 @@ export const createReservation = async (type, formData, token) => {
       return { data: res.data.data, error: null };
     }
     throw new Error(res.data.message);
-  }).catch(err => ({ data:null, error:err.response?.data?.message || err.message }));
+  }).catch(err => {
+    console.error('Reservation creation failed:', {
+      type: slug,
+      error: err.response?.data || err,
+      formData
+    });
+    return { data: null, error: err.response?.data?.message || err.message };
+  });
 };
 
 /**
@@ -48,7 +56,7 @@ export const createReservation = async (type, formData, token) => {
 export const fetchReservationById = async (type, id, token) => {
     const slug = (type || "").toLowerCase();
     const response = await axios.get(
-      `${API_URL}/reservations/${slug}/${id}`,   // ✅ note reservations not users
+      `${API_URL}/reservations/${slug}/${id}`,
       {
         headers: { ...(token && { Authorization: `Bearer ${token}` }) },
       }

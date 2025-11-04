@@ -3,7 +3,7 @@ import axios from 'axios';
 export const fetchAccommodationDetails = async (bookingId, token) => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/users/accommodations/${bookingId}`,
+      `${import.meta.env.VITE_BACKEND_URL}/reservations/accommodation/${bookingId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -27,7 +27,7 @@ export const fetchAccommodationDetails = async (bookingId, token) => {
 export const createAccommodationBooking = async (formData, token) => {
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/users/accommodations`,
+      `${import.meta.env.VITE_BACKEND_URL}/reservations/accommodation`,
       formData,
       {
         headers: {
@@ -42,6 +42,7 @@ export const createAccommodationBooking = async (formData, token) => {
     }
     throw new Error(response.data.message);
   } catch (error) {
+    console.error('Accommodation booking error:', error.response?.data || error);
     return {
       data: null,
       error: error.response?.data?.message || 'Something went wrong with the booking'

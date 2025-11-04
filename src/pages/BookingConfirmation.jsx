@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { fetchReservationById } from "../services/reservationApi";
 import { getBookingType } from "../utils/bookingUtils";
 import { slugToLabel } from "../utils/typeMapper";
-import { downloadAcknowledgementPDF } from "../utils/pdf/acknowledgePDF";  
+import { downloadAcknowledgementPDF, previewAcknowledgementPDF } from "../utils/pdf/acknowledgePDF";  
 import { UserContext } from "../context/UserContext";
 
 import LoadingState from "../components/Confirmation/LoadingState";
@@ -50,7 +50,12 @@ const BookingConfirmation = () => {
         setError(result.error);
         toast.error(result.error);
       } else {
-        setBooking(result.data);
+        // Ensure we merge initialData for any fields that might not be in the API response
+        setBooking({
+          ...initialData,
+          ...result.data,
+          selectedRoomTypes: result.data.selectedRoomTypes || initialData.selectedRoomTypes
+        });
       }
 
       setLoading(false);
@@ -59,6 +64,7 @@ const BookingConfirmation = () => {
     getBooking();
   }, [bookingId, initialData]);
 
+  // Use booking as the primary source of data, fall back to initialData
   const bookingData = booking || initialData;
   const typeSlug = getBookingType(bookingData);
   const typeLabel = slugToLabel(typeSlug);
@@ -68,6 +74,10 @@ const BookingConfirmation = () => {
 
   const handleDownloadPDF = () => {
     downloadAcknowledgementPDF(bookingData, typeSlug);
+  };
+
+  const handlePreviewPDF = () => {
+    previewAcknowledgementPDF(bookingData, typeSlug);
   };
 
   return (
@@ -86,9 +96,22 @@ const BookingConfirmation = () => {
           </div>
         )}
 
-        <ActionButtons bookingData={bookingData} bookingType={typeSlug} handleDownloadPDF={handleDownloadPDF} />
-
-       
+        <div className="flex justify-center gap-4 mt-6">
+          <button
+            onClick={handlePreviewPDF}
+            className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50"
+          >
+            <FaFilePdf />
+            Preview PDF
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          >
+            <FaFilePdf />
+            Download PDF
+          </button>
+        </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           This acknowledgement confirms that we received your request. A final confirmation PDF will be sent to your email once our team approves your booking.
@@ -96,7 +119,7 @@ const BookingConfirmation = () => {
 
         <Link
           to="/"
-          className="text-blue-600 hover:underline text-center text-sm flex items-center gap-2 mt-6 justify-center"
+          className="text-blue-600 hover:underline text-sm flex items-center gap-2 mt-6 justify-center"
         >
           <FaArrowLeft />
           Back to Home

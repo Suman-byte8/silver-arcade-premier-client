@@ -32,7 +32,7 @@ const ExclusiveOutlets = () => {
             Operational Timing - 24x7 Services
           </p>
           <p className="text-gray-700 mb-4">
-            Contact Details - +91 9775145144 | silverarcadepremier@gmail.com
+            Contact Details - {import.meta.env.VITE_CONTACT_PHONE} | {import.meta.env.VITE_CONTACT_EMAIL}
           </p>
           <button className="text-sm border border-gray-400 rounded-full px-4 py-1 hover:bg-gray-100 transition">
             EXPLORE MORE
