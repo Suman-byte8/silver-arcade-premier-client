@@ -19,6 +19,7 @@ const CHECK_OUT_TIME = "09:00";
 export default function AccommodationForm({ onSubmit }) {
   const location = useLocation();
   const initialRoomData = location.state?.roomData;
+  const preselectRoomType = location.state?.preselectRoomType;
 
   // State declarations
   const [showArrivalCalendar, setShowArrivalCalendar] = useState(false);
@@ -36,7 +37,7 @@ export default function AccommodationForm({ onSubmit }) {
   const [departureDate, setDepartureDate] = useState(tomorrow);
   // const [rooms, setRooms] = useState([{ adults: 1, children: 0 }]); // Commented out old rooms state
   const [selectedRoomTypes, setSelectedRoomTypes] = useState(
-    initialRoomData ? [{ type: initialRoomData.roomType, count: 1 }] : []
+    preselectRoomType ? [{ type: preselectRoomType, count: 1 }] : (initialRoomData ? [{ type: initialRoomData.roomType, count: 1 }] : [])
   );
   const [totalAdults, setTotalAdults] = useState(initialRoomData?.adults || 1);
   const [totalChildren, setTotalChildren] = useState(initialRoomData?.children || 0);

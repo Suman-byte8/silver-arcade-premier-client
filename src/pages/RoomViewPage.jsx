@@ -43,7 +43,8 @@ const RoomViewPage = () => {
           checkOut: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           adults: 1,
           children: 0
-        }
+        },
+        preselectRoomType: room.roomType
       }
     });
   };
@@ -75,21 +76,28 @@ const RoomViewPage = () => {
                 Experience comfort in our {room.roomType} room. This room can accommodate up to {room.roomCapacity} {room.roomCapacity > 1 ? 'persons' : 'person'}.
               </p>
               <div className="text-2xl font-bold mb-6">₹{room.roomPrice}<span className="text-base font-normal text-gray-600">/night</span></div>
-              <button
-                onClick={handleBookNow}
-                disabled={room.roomStatus === 'booked'}
-                className={`w-full py-3 px-4 rounded-md text-lg font-medium ${
-                  room.roomStatus === 'booked'
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-primary text-white bg-blue-600 hover:bg-primary-dark transition-colors'
-                }`}
-              >
-                {room.roomStatus === 'booked' ? 'Room Not Available' : 'Book Now'}
-              </button>
-              {room.roomStatus === 'booked' && (
-                <p className="text-sm text-gray-500 text-center mt-2">
-                  This room is currently booked. Please check back later or choose another room.
-                </p>
+              {room.roomStatus === 'available' ? (
+                <button
+                  onClick={handleBookNow}
+                  className="w-full py-3 px-4 rounded-md text-lg font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  Book Now
+                </button>
+              ) : (
+                <div>
+                  <button
+                    disabled
+                    className="w-full py-3 px-4 rounded-md text-lg font-medium bg-gray-300 cursor-not-allowed text-gray-600"
+                  >
+                    {room.roomStatus === 'booked' ? 'Room Not Available' : 'Under Maintenance'}
+                  </button>
+                  <p className="text-sm text-gray-500 text-center mt-2">
+                    {room.roomStatus === 'booked'
+                      ? 'This room is currently booked. Please check back later or choose another room.'
+                      : 'This room is currently under maintenance. Please check back later.'
+                    }
+                  </p>
+                </div>
               )}
             </div>
           </div>
