@@ -80,9 +80,10 @@ export const cachedFetchAboutPage = () => cachedApiCall(
 
 export const cachedFetchFacilities = () => cachedApiCall(
   async () => {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/facilities`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/facilities/get-facilities`);
     if (!response.ok) throw new Error('Failed to fetch facilities');
-    return response.json();
+    const result = await response.json();
+    return result.facilities; // Return the facilities array
   },
   'facilities',
   CACHE_TTL.FACILITIES
@@ -100,9 +101,10 @@ export const cachedFetchGallery = () => cachedApiCall(
 
 export const cachedFetchRooms = () => cachedApiCall(
   async () => {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/rooms`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/rooms/get-rooms`);
     if (!response.ok) throw new Error('Failed to fetch rooms');
-    return response.json();
+    const result = await response.json();
+    return result.rooms; // Return the rooms array
   },
   'rooms',
   CACHE_TTL.ROOMS
@@ -110,7 +112,7 @@ export const cachedFetchRooms = () => cachedApiCall(
 
 export const cachedFetchMembership = () => cachedApiCall(
   async () => {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/membership`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/membership`);
     if (!response.ok) throw new Error('Failed to fetch membership');
     return response.json();
   },
