@@ -6,6 +6,7 @@ import Services from "../components/About Us/Services";
 import CTA from "../components/About Us/CTASection";
 import HeroSection from "../components/About Us/HeroSection";
 import ContentSection from "../components/About Us/ContentSection";
+import { cachedFetchAboutPage } from "../utils/apiCache";
 
 export default function AboutUs() {
   const [data, setData] = useState(null);
@@ -14,9 +15,7 @@ export default function AboutUs() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/about`);
-
-        const result = await response.json();
+        const result = await cachedFetchAboutPage();
         setData(result);
       } catch (error) {
         console.error("Error fetching about data:", error);

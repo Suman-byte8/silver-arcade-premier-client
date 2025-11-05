@@ -1,17 +1,13 @@
-import api from "./authApi";
+import { cachedFetchFacilities } from "../utils/apiCache";
 
 export const fetchFacilities = async () => {
   try {
-    const response = await api.get("/facilities/get-facilities");
-    if (response.data.success) {
-      return { data: response.data.facilities, error: null };
-    } else {
-      return { data: null, error: "Failed to fetch facilities" };
-    }
+    const data = await cachedFetchFacilities();
+    return { data, error: null };
   } catch (error) {
     return {
       data: null,
-      error: error.response?.data?.message || "Error fetching facilities"
+      error: error.message || "Error fetching facilities"
     };
   }
 };
