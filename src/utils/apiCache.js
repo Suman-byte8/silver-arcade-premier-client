@@ -104,7 +104,8 @@ export const cachedFetchGallery = () => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/gallery`);
     if (!response.ok) throw new Error('Failed to fetch gallery');
-    return response.json();
+    const result = await response.json();
+    return result.gallery || result; // Return the gallery array or the full response if no gallery key
   },
   'gallery',
   CACHE_TTL.GALLERY
