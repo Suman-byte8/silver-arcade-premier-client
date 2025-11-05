@@ -24,7 +24,7 @@ This client application provides a comprehensive user interface for hotel guests
 ### Image & Media Handling
 - **React Image**: Optimized image component with lazy loading
 - **Browser Image Compression**: Client-side image compression library
-- **ImageKit React**: Real-time image optimization and transformation
+- **Cloudinary**: Real-time image optimization and transformation
 
 ### Carousel & Interactive Components
 - **Swiper**: Modern mobile touch slider with hardware accelerated transitions
@@ -144,7 +144,6 @@ npm run lint
 
 ### Environment Variables
 - `VITE_BACKEND_URL`: Backend API base URL
-- `VITE_IMAGEKIT_URL`: ImageKit CDN URL
 - `VITE_SOCKET_URL`: Socket.io server URL
 
 ## Browser Support
