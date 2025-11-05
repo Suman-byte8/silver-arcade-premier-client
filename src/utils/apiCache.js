@@ -48,6 +48,17 @@ export const cachedApiCall = async (apiFunction, cacheKey, ttl = CACHE_TTL.DEFAU
 };
 
 // Specific cached API functions
+export const cachedFetchHeroBanner = () => cachedApiCall(
+  async () => {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/home/hero-banner`);
+    if (!response.ok) throw new Error('Failed to fetch hero banner');
+    const result = await response.json();
+    return result.heroBanners; // Return the heroBanners array
+  },
+  'heroBanner',
+  CACHE_TTL.HOMEPAGE
+);
+
 export const cachedFetchDistinctives = () => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/home/distinctives`);
