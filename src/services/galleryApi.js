@@ -1,13 +1,13 @@
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL || "";
+import { cachedFetchGallery } from "../utils/apiCache";
 
 export const fetchGalleryImages = async (tab) => {
   try {
-    const response = await axios.get(`${API_URL}/content/gallery`, {
-      params: { tab },
-    });
-    return response.data;
+    const data = await cachedFetchGallery();
+    // Filter by tab if provided - use 'tab' field instead of 'category'
+    if (tab) {
+      return data.filter(item => item.tab === tab);
+    }
+    return data;
   } catch (error) {
     console.error("Error fetching gallery images:", error);
     return [];

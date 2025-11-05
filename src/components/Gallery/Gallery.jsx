@@ -134,7 +134,7 @@ const HotelGallery = () => {
 
       {/* Lightbox Image Viewer */}
       {viewerOpen && viewerImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-6">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/90 p-6">
           {/* Close Button */}
           <button
             onClick={closeViewer}

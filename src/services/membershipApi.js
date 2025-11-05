@@ -1,13 +1,21 @@
 // services/membershipApi.js
 import axios from "axios";
+import { cachedFetchMembership } from "../utils/apiCache";
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL + "/membership";
 
 // get all memberships
 export const getMemberships = async (token) => {
-  return axios.get(`${API_BASE}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    // For public membership info, use cache
+    const data = await cachedFetchMembership();
+    return { data };
+  } catch (error) {
+    // Fallback to direct API call if needed
+    return axios.get(`${API_BASE}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
 };
 
 // get membership by id

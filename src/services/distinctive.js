@@ -1,7 +1,6 @@
-import api from "./authApi";
+import { cachedFetchDistinctives } from "../utils/apiCache";
 
 // READ
 export const fetchDistinctives = async () => {
-  const { data } = await api.get("/content/home/distinctives");
-  return data;
+  return await cachedFetchDistinctives();
 };

@@ -1,27 +1,58 @@
-# TODO: Remove Custom Tokens and Use UserContext
+# IndexedDB Caching Implementation
 
-## Files Updated:
-- [x] Client/src/context/UserContext.jsx - Removed custom token state, added getToken function
-- [x] Client/src/components/Home Page/Curated Offers/Offers.jsx - Updated to use getToken from context
-- [x] Client/src/components/Reservation/RestaurantReservationForm.jsx - Updated to use getToken from context
-- [x] Client/src/components/Home Page/Distinctive/Distinctive.jsx - Updated to use getToken from context
-- [x] Client/src/components/Home Page/Carousel/Carousel.jsx - Updated to use getToken from context
-- [x] Client/src/pages/Facilities.jsx - Moved API function to services/facilitiesApi.js and updated to use getToken from context
+## Overview
+Implement IndexedDB caching for all client-side API calls to improve performance and reduce server load. This includes caching data for homepage, about page, facilities, gallery, rooms, and membership sections.
 
-## Files to Update:
-- [ ] Client/src/services/offers.js - fetchCuratedOffers function
-- [ ] Client/src/services/distinctive.js - Functions using token
-- [ ] Client/src/services/aboutApi.js - Functions using token
-- [ ] Client/src/services/galleryApi.js - Functions using token
-- [ ] Client/src/components/Home Page/Carousel/Api/HeroBanner.js - Functions using token
-- [ ] Client/src/components/Reservation/api/meetingReservationApi.js - Functions using token
-- [ ] Client/src/components/Reservation/api/accommodationApi.js - Functions using token
-- [ ] Client/src/components/Reservation/api/restaurantReservationApi.js - fetchRestaurantReservationDetails function
+## Completed Tasks
+- [x] Created new branch `blackboxai/indexeddb-caching`
+- [x] Created IndexedDB utility (`src/utils/indexedDB.js`)
+- [x] Created API cache wrapper (`src/utils/apiCache.js`)
+- [x] Updated all API service files to use cached versions:
+  - [x] `distinctive.js` - uses `cachedFetchDistinctives`
+  - [x] `offers.js` - uses `cachedFetchCuratedOffers`
+  - [x] `aboutApi.js` - updated to use `cachedFetchAboutPage`
+  - [x] `facilitiesApi.js` - uses `cachedFetchFacilities`
+  - [x] `galleryApi.js` - uses `cachedFetchGallery`
+  - [x] `roomsApi.js` - uses `cachedFetchRooms`
+  - [x] `membershipApi.js` - uses `cachedFetchMembership`
+- [x] Updated AboutUs page to use cached API
+- [x] Created HeroBanner API component with caching
 
-## Components/Pages to Update (where these API functions are called):
-- Find and update all components that call these API functions to use context instead of passing token parameter
+## Pending Tasks
+- [ ] Test all cached API calls across different pages
+- [ ] Verify cache TTL settings are appropriate
+- [ ] Add cache invalidation mechanisms for admin updates
+- [ ] Test offline functionality
+- [ ] Add cache size monitoring and cleanup
 
-## Notes:
-- Replace `const token = import.meta.env.VITE_TEMP_TOKEN;` with `const { getToken } = useContext(UserContext);` and `const token = getToken();`
-- Update API function calls to not pass token parameter if the function is modified to use context internally
-- Ensure all components import and use UserContext where needed
+## Cache TTL Configuration
+- Homepage data: 30 minutes
+- About page: 1 hour
+- Facilities: 45 minutes
+- Offers: 15 minutes
+- Gallery: 1 hour
+- Rooms: 30 minutes
+- Membership: 1 hour
+
+## Files Modified
+- `src/utils/indexedDB.js` (new)
+- `src/utils/apiCache.js` (new)
+- `src/services/distinctive.js`
+- `src/services/offers.js`
+- `src/services/facilitiesApi.js`
+- `src/services/galleryApi.js`
+- `src/services/roomsApi.js`
+- `src/services/membershipApi.js`
+- `src/pages/AboutUs.jsx`
+- `src/components/Home Page/Carousel/Api/HeroBanner.js` (new)
+
+## Testing Checklist
+- [ ] Homepage loads data from cache on second visit
+- [ ] About page uses cached data
+- [ ] Facilities page caches data
+- [ ] Gallery images are cached
+- [ ] Rooms data is cached
+- [ ] Membership data is cached
+- [ ] Cache expires after TTL
+- [ ] Fallback to API when cache is empty
+- [ ] Error handling when both cache and API fail
