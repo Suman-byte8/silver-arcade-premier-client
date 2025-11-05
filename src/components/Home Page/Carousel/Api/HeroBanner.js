@@ -1,5 +1,5 @@
 import axios from "axios";
-import { cachedFetchHeroBanner } from "../../../utils/apiCache";
+import { cachedFetchHeroBanner } from "../../../../utils/apiCache";
 
 export const getHeroBannerData = async (token) => {
   try {
