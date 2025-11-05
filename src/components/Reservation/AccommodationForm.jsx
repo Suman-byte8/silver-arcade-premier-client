@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 import FullLogo from "../FullLogo";
 import BookingButton from "../Reservation/BookingButton";
 import { DatePicker } from "../Reservation/Accommodation/components/DatePicker";
@@ -8,6 +8,7 @@ import { NightsDisplay } from "../Reservation/Accommodation/components/NightsDis
 import { RoomSelection } from "../Reservation/Accommodation/components/RoomSelection";
 import { GuestInformation } from "../Reservation/Accommodation/components/GuestInformation";
 import { createReservation } from "../../services/reservationApi";
+import { getRoomTypes } from "../../services/roomTypesApi";
 import { formatDate } from "../../utils/bookingUtils";
 import { UserContext } from "../../context/UserContext";
 import LoginModal from "../LoginModal";
@@ -37,15 +38,23 @@ export default function AccommodationForm({ onSubmit }) {
   const [departureDate, setDepartureDate] = useState(tomorrow);
   // const [rooms, setRooms] = useState([{ adults: 1, children: 0 }]); // Commented out old rooms state
   const [selectedRoomTypes, setSelectedRoomTypes] = useState(
-    preselectRoomType ? [{ type: preselectRoomType, count: 1 }] : (initialRoomData ? [{ type: initialRoomData.roomType, count: 1 }] : [])
+    preselectRoomType
+      ? [{ type: preselectRoomType, count: 1 }]
+      : initialRoomData
+      ? [{ type: initialRoomData.roomType, count: 1 }]
+      : []
   );
   const [totalAdults, setTotalAdults] = useState(initialRoomData?.adults || 1);
-  const [totalChildren, setTotalChildren] = useState(initialRoomData?.children || 0);
+  const [totalChildren, setTotalChildren] = useState(
+    initialRoomData?.children || 0
+  );
   const [guestName, setGuestName] = useState("");
   const [guestPhoneNumber, setGuestPhoneNumber] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [specialRequests, setSpecialRequests] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [roomTypesLoading, setRoomTypesLoading] = useState(true);
 
   // Update handlers for total guests
   const handleTotalAdultsChange = (value) => {
@@ -64,21 +73,53 @@ export default function AccommodationForm({ onSubmit }) {
     }
   }, [initialRoomData]);
 
+  useEffect(() => {
+    const fetchRoomTypes = async () => {
+      try {
+        const token = getToken();
+        const data = await getRoomTypes(token);
+        setRoomTypes(data);
+      } catch (error) {
+        console.error("Error fetching room types:", error);
+        toast.error("Failed to load room types");
+      } finally {
+        setRoomTypesLoading(false);
+      }
+    };
+    fetchRoomTypes();
+  }, [getToken]);
+
   const handleDateSelect = (date, type) => {
     if (type === "arrival") {
       setArrivalDate(date);
       setShowArrivalCalendar(false);
       // If arrival date is changed to be on or after departure, adjust departure
-      const arrivalDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const departureDateOnly = new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate());
+      const arrivalDateOnly = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      );
+      const departureDateOnly = new Date(
+        departureDate.getFullYear(),
+        departureDate.getMonth(),
+        departureDate.getDate()
+      );
       if (arrivalDateOnly >= departureDateOnly) {
         const newDeparture = new Date(date);
         newDeparture.setDate(date.getDate() + 1);
         setDepartureDate(newDeparture);
       }
     } else {
-      const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const arrivalDateOnly = new Date(arrivalDate.getFullYear(), arrivalDate.getMonth(), arrivalDate.getDate());
+      const dateOnly = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      );
+      const arrivalDateOnly = new Date(
+        arrivalDate.getFullYear(),
+        arrivalDate.getMonth(),
+        arrivalDate.getDate()
+      );
       if (dateOnly > arrivalDateOnly) {
         setDepartureDate(date);
         setShowDepartureCalendar(false);
@@ -117,40 +158,40 @@ export default function AccommodationForm({ onSubmit }) {
     } else {
       newRoomTypes[index] = { type, count };
     }
-    setSelectedRoomTypes(newRoomTypes.filter(room => room.count > 0));
+    setSelectedRoomTypes(newRoomTypes.filter((room) => room.count > 0));
   };
 
   const addRoomType = () => {
-    setSelectedRoomTypes([...selectedRoomTypes, { type: '', count: 1 }]);
+    setSelectedRoomTypes([...selectedRoomTypes, { type: "", count: 1 }]);
   };
 
   const resetForm = () => {
     setSelectedRoomTypes([]);
     setTotalAdults(1);
     setTotalChildren(0);
-    setGuestName('');
-    setGuestPhoneNumber('');
-    setGuestEmail('');
-    setSpecialRequests('');
+    setGuestName("");
+    setGuestPhoneNumber("");
+    setGuestEmail("");
+    setSpecialRequests("");
   };
 
   // Helper functions for formatting dates with times
-  const formatDateWithTime = (date, time) => {
-    const formattedDate = date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    return `${formattedDate} at ${time}`;
-  };
+  // const formatDateWithTime = (date, time) => {
+  //   const formattedDate = date.toLocaleDateString("en-US", {
+  //     year: "numeric",
+  //     month: "long",
+  //     day: "numeric",
+  //   });
+  //   return `${formattedDate} at ${time}`;
+  // };
 
-  const formatTime = (time) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
-  };
+  // const formatTime = (time) => {
+  //   const [hours, minutes] = time.split(':');
+  //   const hour = parseInt(hours, 10);
+  //   const ampm = hour >= 12 ? 'PM' : 'AM';
+  //   const displayHour = hour % 12 || 12;
+  //   return `${displayHour}:${minutes} ${ampm}`;
+  // };
 
   // Calculate number of nights
   const calculateNights = () => {
@@ -164,83 +205,90 @@ export default function AccommodationForm({ onSubmit }) {
       setIsLoginModalOpen(true);
       return;
     }
-  
+
     try {
       setIsLoading(true);
-  
+
       // Form validation
       if (!guestName || !guestPhoneNumber || !guestEmail) {
-        toast.error('Please fill in all guest information');
+        toast.error("Please fill in all guest information");
         setIsLoading(false);
         return;
       }
-  
-      if (selectedRoomTypes.length === 0 || selectedRoomTypes.some(room => !room.type)) {
-        toast.error('Please select room types for all rooms');
+
+      if (
+        selectedRoomTypes.length === 0 ||
+        selectedRoomTypes.some((room) => !room.type)
+      ) {
+        toast.error("Please select room types for all rooms");
         setIsLoading(false);
         return;
       }
-  
+
       if (totalAdults < 1) {
-        toast.error('At least one adult is required');
+        toast.error("At least one adult is required");
         setIsLoading(false);
         return;
       }
-  
+
       // Calculate nights
       const nights = calculateNights();
       if (nights < 1) {
-        toast.error('Check-out date must be after check-in date');
+        toast.error("Check-out date must be after check-in date");
         setIsLoading(false);
         return;
       }
-  
+
       const formData = {
-        typeOfReservation: 'accommodation',
+        typeOfReservation: "accommodation",
         arrivalDate: arrivalDate.toISOString(),
         departureDate: departureDate.toISOString(),
         checkInTime: CHECK_IN_TIME,
         checkOutTime: CHECK_OUT_TIME,
         nights,
-        selectedRoomTypes: selectedRoomTypes.map(room => ({
+        selectedRoomTypes: selectedRoomTypes.map((room) => ({
           type: room.type,
-          count: Math.max(1, room.count)
+          count: Math.max(1, room.count),
         })),
         totalAdults: Math.max(1, totalAdults),
         totalChildren: Math.max(0, totalChildren),
-        specialRequests: specialRequests || '',
+        specialRequests: specialRequests || "",
         guestInfo: {
           name: guestName.trim(),
           phoneNumber: guestPhoneNumber.trim(),
-          email: guestEmail.trim().toLowerCase()
-        }
+          email: guestEmail.trim().toLowerCase(),
+        },
       };
-  
-      console.log('Submitting accommodation booking:', formData);
-  
+
+      console.log("Submitting accommodation booking:", formData);
+
       const token = getToken();
-      const { data, error } = await createReservation("accommodation", formData, token);
-  
+      const { data, error } = await createReservation(
+        "accommodation",
+        formData,
+        token
+      );
+
       if (error) {
-        console.error('Booking error:', error);
+        console.error("Booking error:", error);
         toast.error(error);
         setIsLoading(false);
         return;
       }
-  
-      toast.success('Booking successful!');
-  
+
+      toast.success("Booking successful!");
+
       // Call onSubmit with the booking data for navigation
       onSubmit({
         ...data,
-        bookingId: data._id
+        bookingId: data._id,
       });
-  
+
       // Reset form
       resetForm();
     } catch (error) {
-      console.error('Booking error:', error);
-      toast.error('Something went wrong with the booking');
+      console.error("Booking error:", error);
+      toast.error("Something went wrong with the booking");
     } finally {
       setIsLoading(false);
     }
@@ -262,11 +310,13 @@ export default function AccommodationForm({ onSubmit }) {
           }}
           onDateSelect={(date) => handleDateSelect(date, "arrival")}
           minDate={today}
-          formatDate={(date) => date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
+          formatDate={(date) =>
+            date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          }
         />
         <DatePicker
           label="DEPARTURE"
@@ -278,11 +328,13 @@ export default function AccommodationForm({ onSubmit }) {
           }}
           onDateSelect={(date) => handleDateSelect(date, "departure")}
           minDate={new Date(arrivalDate.getTime() + 24 * 60 * 60 * 1000)}
-          formatDate={(date) => date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
+          formatDate={(date) =>
+            date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          }
         />
       </div>
 
@@ -301,38 +353,63 @@ export default function AccommodationForm({ onSubmit }) {
           ROOM TYPES
         </label>
         <div className="space-y-4">
-          {selectedRoomTypes.map((room, index) => (
-            <div key={index} className="flex items-center gap-4">
-              <select
-                value={room.type}
-                onChange={(e) => handleRoomTypeChange(index, e.target.value, room.count)}
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
-              >
-                <option value="">Select Room Type</option>
-                <option value="Standard">Standard Room</option>
-                <option value="Deluxe">Deluxe Room</option>
-                <option value="Suite">Suite</option>
-                <option value="Family">Family Room</option>
-              </select>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleRoomTypeChange(index, room.type, room.count - 1)}
-                  className="p-1 text-gray-500 hover:text-gray-700"
-                >
-                  -
-                </button>
-                <span className="w-8 text-center">{room.count}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRoomTypeChange(index, room.type, room.count + 1)}
-                  className="p-1 text-gray-500 hover:text-gray-700"
-                >
-                  +
-                </button>
+          {selectedRoomTypes.map((room, index) => {
+            const selectedRoomType = roomTypes.find(
+              (rt) => rt.type === room.type
+            );
+            return (
+              <div key={index} className="flex items-center gap-4">
+                <div className="flex-1">
+                  <select
+                    value={room.type}
+                    onChange={(e) =>
+                      handleRoomTypeChange(index, e.target.value, room.count)
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                    disabled={roomTypesLoading}
+                  >
+                    <option value="">Select Room Type</option>
+                    {roomTypes.map((rt) => (
+                      <option
+                        key={rt.type}
+                        value={rt.type}
+                        disabled={!rt.available}
+                        className="text-xs lg:text-base"
+                      >
+                        {rt.type} - {rt.status}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedRoomType && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {selectedRoomType.status}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRoomTypeChange(index, room.type, room.count - 1)
+                    }
+                    className="p-1 text-gray-500 hover:text-gray-700"
+                  >
+                    -
+                  </button>
+                  <span className="w-8 text-center">{room.count}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRoomTypeChange(index, room.type, room.count + 1)
+                    }
+                    className="p-1 text-gray-500 hover:text-gray-700"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <button
             type="button"
             onClick={addRoomType}
@@ -430,7 +507,11 @@ export default function AccommodationForm({ onSubmit }) {
         onEmailChange={(e) => setGuestEmail(e.target.value)}
       />
 
-      <BookingButton text={"Book"} onSubmit={handleSubmit} isLoading={isLoading} />
+      <BookingButton
+        text={"Book"}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
 
       {/* Login Modal */}
       <LoginModal

@@ -6,6 +6,19 @@ import { FaRupeeSign } from "react-icons/fa";
 const RoomCard = ({ room }) => {
   const navigate = useNavigate();
 
+  const getStatusBadgeColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'available':
+        return 'bg-green-100 text-green-800';
+      case 'booked':
+        return 'bg-red-100 text-red-800';
+      case 'maintenance':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <div
       onClick={() => navigate(`/our-rooms/room-tour/${room._id}`)}
@@ -19,6 +32,10 @@ const RoomCard = ({ room }) => {
           className="w-full h-full"
           imgClassName="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
         />
+        {/* Status Badge */}
+        <span className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(room.roomStatus)}`}>
+          {room.roomStatus || 'Unknown'}
+        </span>
       </div>
 
       {/* Content */}
