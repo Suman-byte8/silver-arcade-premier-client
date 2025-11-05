@@ -89,7 +89,7 @@ const AuthModal = ({ isOpen, onClose, loginOnly = false }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 backdrop-blur-xs bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 backdrop-blur-xs bg-opacity-50 z-80 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
