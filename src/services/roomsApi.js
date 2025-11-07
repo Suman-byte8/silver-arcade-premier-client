@@ -14,14 +14,28 @@ export const getRooms = async (token) => {
 
 export const getRoomById = async (roomId, token) => {
   try {
-    // For individual room, we might want to fetch from cache or API
-    // For simplicity, using cached rooms and filtering
+    // Try cached collection first
     const rooms = await cachedFetchRooms();
-    const room = rooms.find(r => r.id === roomId);
-    if (!room) {
+    const roomFromCache = rooms.find((room) => room._id === roomId || room.id === roomId);
+    if (roomFromCache) {
+      return roomFromCache;
+    }
+
+    // Fallback to direct API call when cache miss occurs
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/rooms/get-room/${roomId}`, {
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`
+          }
+        : undefined
+    });
+
+    if (!response.ok) {
       throw new Error('Room not found');
     }
-    return room;
+
+    const result = await response.json();
+    return result.room;
   } catch (error) {
     console.error('Error fetching room:', error);
     throw error;
