@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { getRoomById } from "../services/roomsApi";
-import { socket } from "../socket";
 import RoomHero from "../components/RoomViewPage/RoomHero";
 import RoomGallery from "../components/RoomViewPage/RoomGallery";
 import RoomDescription from "../components/RoomViewPage/RoomDescription";
