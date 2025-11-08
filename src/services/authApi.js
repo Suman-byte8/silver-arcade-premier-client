@@ -26,9 +26,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Remove token and redirect to login
+      // Remove token
       localStorage.removeItem('token');
-      window.location.href = '/log-in';
+      // No redirect to login page, let AuthModal handle authentication
     }
     return Promise.reject(error);
   }
