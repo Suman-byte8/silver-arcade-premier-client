@@ -89,7 +89,7 @@ const AuthModal = ({ isOpen, onClose, loginOnly = false }) => {
   if (!isOpen) return null;
 
   return (
-    <>
+    <div>
       {/* Toast with higher z-index than modal */}
       {toast && (
         <Toast
@@ -114,17 +114,115 @@ const AuthModal = ({ isOpen, onClose, loginOnly = false }) => {
               </button>
             </div>
 
-          {isLogin ? (
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div className="space-y-4">
+            {isLogin ? (
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div className="space-y-4">
+                  <div className="relative">
+                    <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={loginData.email}
+                      onChange={(e) =>
+                        setLoginData({ ...loginData, email: e.target.value })
+                      }
+                      placeholder="Email"
+                      className="pl-10 w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                  <div className="relative">
+                    <FaLock className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="password"
+                      name="password"
+                      value={loginData.password}
+                      onChange={(e) =>
+                        setLoginData({ ...loginData, password: e.target.value })
+                      }
+                      placeholder="Password"
+                      className="pl-10 w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                >
+                  Login
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSignupSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <FaUser className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={signupData.firstName}
+                      onChange={(e) =>
+                        setSignupData({ ...signupData, firstName: e.target.value })
+                      }
+                      placeholder="First Name"
+                      className="pl-10 w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                  <div className="relative">
+                    <FaUser className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={signupData.lastName}
+                      onChange={(e) =>
+                        setSignupData({ ...signupData, lastName: e.target.value })
+                      }
+                      placeholder="Last Name"
+                      className="pl-10 w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="relative">
+                  <FaPhone className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={signupData.phoneNumber}
+                    onChange={(e) =>
+                      setSignupData({ ...signupData, phoneNumber: e.target.value })
+                    }
+                    placeholder="Phone Number"
+                    className="pl-10 w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <FaPhone className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="tel"
+                    name="whatsAppNumber"
+                    value={signupData.whatsAppNumber}
+                    onChange={(e) =>
+                      setSignupData({
+                        ...signupData,
+                        whatsAppNumber: e.target.value,
+                      })
+                    }
+                    placeholder="WhatsApp Number"
+                    className="pl-10 w-full p-2 border rounded"
+                  />
+                </div>
                 <div className="relative">
                   <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
                   <input
                     type="email"
                     name="email"
-                    value={loginData.email}
+                    value={signupData.email}
                     onChange={(e) =>
-                      setLoginData({ ...loginData, email: e.target.value })
+                      setSignupData({ ...signupData, email: e.target.value })
                     }
                     placeholder="Email"
                     className="pl-10 w-full p-2 border rounded"
@@ -136,145 +234,48 @@ const AuthModal = ({ isOpen, onClose, loginOnly = false }) => {
                   <input
                     type="password"
                     name="password"
-                    value={loginData.password}
+                    value={signupData.password}
                     onChange={(e) =>
-                      setLoginData({ ...loginData, password: e.target.value })
+                      setSignupData({ ...signupData, password: e.target.value })
                     }
                     placeholder="Password"
                     className="pl-10 w-full p-2 border rounded"
                     required
                   />
                 </div>
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-              >
-                Login
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleSignupSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                  <FaUser className="absolute left-3 top-3 text-gray-400" />
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={signupData.firstName}
-                    onChange={(e) =>
-                      setSignupData({ ...signupData, firstName: e.target.value })
-                    }
-                    placeholder="First Name"
-                    className="pl-10 w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-                <div className="relative">
-                  <FaUser className="absolute left-3 top-3 text-gray-400" />
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={signupData.lastName}
-                    onChange={(e) =>
-                      setSignupData({ ...signupData, lastName: e.target.value })
-                    }
-                    placeholder="Last Name"
-                    className="pl-10 w-full p-2 border rounded"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="relative">
-                <FaPhone className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={signupData.phoneNumber}
+                <textarea
+                  name="address"
+                  value={signupData.address}
                   onChange={(e) =>
-                    setSignupData({ ...signupData, phoneNumber: e.target.value })
+                    setSignupData({ ...signupData, address: e.target.value })
                   }
-                  placeholder="Phone Number"
-                  className="pl-10 w-full p-2 border rounded"
+                  placeholder="Address"
+                  className="w-full p-2 border rounded"
                   required
                 />
-              </div>
-              <div className="relative">
-                <FaPhone className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="tel"
-                  name="whatsAppNumber"
-                  value={signupData.whatsAppNumber}
-                  onChange={(e) =>
-                    setSignupData({
-                      ...signupData,
-                      whatsAppNumber: e.target.value,
-                    })
-                  }
-                  placeholder="WhatsApp Number"
-                  className="pl-10 w-full p-2 border rounded"
-                />
-              </div>
-              <div className="relative">
-                <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  value={signupData.email}
-                  onChange={(e) =>
-                    setSignupData({ ...signupData, email: e.target.value })
-                  }
-                  placeholder="Email"
-                  className="pl-10 w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              <div className="relative">
-                <FaLock className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="password"
-                  name="password"
-                  value={signupData.password}
-                  onChange={(e) =>
-                    setSignupData({ ...signupData, password: e.target.value })
-                  }
-                  placeholder="Password"
-                  className="pl-10 w-full p-2 border rounded"
-                  required
-                />
-              </div>
-              <textarea
-                name="address"
-                value={signupData.address}
-                onChange={(e) =>
-                  setSignupData({ ...signupData, address: e.target.value })
-                }
-                placeholder="Address"
-                className="w-full p-2 border rounded"
-                required
-              />
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-              >
-                Create Account
-              </button>
-            </form>
-          )}
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+                >
+                  Create Account
+                </button>
+              </form>
+            )}
 
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-blue-600 hover:underline"
-            >
-              {isLogin
-                ? "Don't have an account? Sign up"
-                : "Already have an account? Log in"}
-            </button>
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-600 hover:underline"
+              >
+                {isLogin
+                  ? "Don't have an account? Sign up"
+                  : "Already have an account? Log in"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
