@@ -24,7 +24,7 @@ const Toast = ({ message, type = 'success', onClose, duration = 3000 }) => {
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${getToastStyles()} max-w-sm`}>
+    <div className={`fixed top-4 right-4 z-[150] p-4 rounded-lg shadow-lg ${getToastStyles()} max-w-sm`}>
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{message}</span>
         <button
