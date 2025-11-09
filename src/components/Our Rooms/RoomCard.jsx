@@ -43,6 +43,7 @@ const RoomCard = ({ room }) => {
         <h3 className="font-semibold text-lg text-gray-800 mb-1">
           {room.roomType}
         </h3>
+        <p className="text-gray-600 text-sm mb-1">Capacity: {room.roomCapacity} guests</p>
         <p className="text-gray-600 text-sm line-clamp-3 flex-grow">
           {room.description}
         </p>
