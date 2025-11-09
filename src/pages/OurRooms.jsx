@@ -91,6 +91,7 @@ const OurRooms = () => {
           <option value="Deluxe Room">Deluxe</option>
           <option value="Executive Deluxe Room">Executive Deluxe</option>
           <option value="Suite">Suite</option>
+          <option value="Family Suite">Family Suite</option>
         </select>
       </div>
 
