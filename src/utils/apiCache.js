@@ -14,16 +14,22 @@ const CACHE_TTL = {
 };
 
 // Enhanced API call with caching
-export const cachedApiCall = async (apiFunction, cacheKey, ttl = CACHE_TTL.DEFAULT) => {
+export const cachedApiCall = async (apiFunction, cacheKey, ttl = CACHE_TTL.DEFAULT, forceRefresh = false) => {
   try {
-    // Try to get data from cache first
-    const cachedData = await cache.get(cacheKey);
-    if (cachedData) {
-      console.log(`Serving ${cacheKey} from cache`);
-      return cachedData;
+    // If force refresh is requested, delete the cache entry
+    if (forceRefresh) {
+      await cache.delete(cacheKey);
+      console.log(`Cache cleared for ${cacheKey} due to force refresh`);
+    } else {
+      // Try to get data from cache first
+      const cachedData = await cache.get(cacheKey);
+      if (cachedData) {
+        console.log(`Serving ${cacheKey} from cache`);
+        return cachedData;
+      }
     }
 
-    // If not in cache, make the API call
+    // If not in cache or force refresh, make the API call
     console.log(`Fetching ${cacheKey} from API`);
     const data = await apiFunction();
 
@@ -33,22 +39,24 @@ export const cachedApiCall = async (apiFunction, cacheKey, ttl = CACHE_TTL.DEFAU
     return data;
   } catch (error) {
     console.error(`Error in cached API call for ${cacheKey}:`, error);
-    // If API call fails, try to return cached data even if expired
-    try {
-      const cachedData = await cache.get(cacheKey);
-      if (cachedData) {
-        console.log(`Serving expired ${cacheKey} from cache due to API error`);
-        return cachedData;
+    // If API call fails, try to return cached data even if expired (only if not force refresh)
+    if (!forceRefresh) {
+      try {
+        const cachedData = await cache.get(cacheKey);
+        if (cachedData) {
+          console.log(`Serving expired ${cacheKey} from cache due to API error`);
+          return cachedData;
+        }
+      } catch (cacheError) {
+        console.error('Cache retrieval also failed:', cacheError);
       }
-    } catch (cacheError) {
-      console.error('Cache retrieval also failed:', cacheError);
     }
     throw error;
   }
 };
 
 // Specific cached API functions
-export const cachedFetchHeroBanner = () => cachedApiCall(
+export const cachedFetchHeroBanner = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/home/hero-banner`);
     if (!response.ok) throw new Error('Failed to fetch hero banner');
@@ -56,40 +64,44 @@ export const cachedFetchHeroBanner = () => cachedApiCall(
     return result.heroBanners; // Return the heroBanners array
   },
   'heroBanner',
-  CACHE_TTL.HOMEPAGE
+  CACHE_TTL.HOMEPAGE,
+  forceRefresh
 );
 
-export const cachedFetchDistinctives = () => cachedApiCall(
+export const cachedFetchDistinctives = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/home/distinctives`);
     if (!response.ok) throw new Error('Failed to fetch distinctives');
     return response.json();
   },
   'distinctives',
-  CACHE_TTL.HOMEPAGE
+  CACHE_TTL.HOMEPAGE,
+  forceRefresh
 );
 
-export const cachedFetchCuratedOffers = () => cachedApiCall(
+export const cachedFetchCuratedOffers = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/home/get-curated-offers`);
     if (!response.ok) throw new Error('Failed to fetch offers');
     return response.json();
   },
   'curatedOffers',
-  CACHE_TTL.OFFERS
+  CACHE_TTL.OFFERS,
+  forceRefresh
 );
 
-export const cachedFetchAboutPage = () => cachedApiCall(
+export const cachedFetchAboutPage = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/about`);
     if (!response.ok) throw new Error('Failed to fetch about page');
     return response.json();
   },
   'aboutPage',
-  CACHE_TTL.ABOUT_PAGE
+  CACHE_TTL.ABOUT_PAGE,
+  forceRefresh
 );
 
-export const cachedFetchFacilities = () => cachedApiCall(
+export const cachedFetchFacilities = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/facilities/get-facilities`);
     if (!response.ok) throw new Error('Failed to fetch facilities');
@@ -97,10 +109,11 @@ export const cachedFetchFacilities = () => cachedApiCall(
     return result.facilities; // Return the facilities array
   },
   'facilities',
-  CACHE_TTL.FACILITIES
+  CACHE_TTL.FACILITIES,
+  forceRefresh
 );
 
-export const cachedFetchGallery = () => cachedApiCall(
+export const cachedFetchGallery = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/content/gallery`);
     if (!response.ok) throw new Error('Failed to fetch gallery');
@@ -108,10 +121,11 @@ export const cachedFetchGallery = () => cachedApiCall(
     return result.gallery || result; // Return the gallery array or the full response if no gallery key
   },
   'gallery',
-  CACHE_TTL.GALLERY
+  CACHE_TTL.GALLERY,
+  forceRefresh
 );
 
-export const cachedFetchRooms = () => cachedApiCall(
+export const cachedFetchRooms = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/rooms/get-rooms`);
     if (!response.ok) throw new Error('Failed to fetch rooms');
@@ -119,17 +133,19 @@ export const cachedFetchRooms = () => cachedApiCall(
     return result.rooms; // Return the rooms array
   },
   'rooms',
-  CACHE_TTL.ROOMS
+  CACHE_TTL.ROOMS,
+  forceRefresh
 );
 
-export const cachedFetchMembership = () => cachedApiCall(
+export const cachedFetchMembership = (forceRefresh = false) => cachedApiCall(
   async () => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/membership`);
     if (!response.ok) throw new Error('Failed to fetch membership');
     return response.json();
   },
   'membership',
-  CACHE_TTL.MEMBERSHIP
+  CACHE_TTL.MEMBERSHIP,
+  forceRefresh
 );
 
 // Utility functions
